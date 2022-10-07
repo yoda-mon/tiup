@@ -119,12 +119,15 @@ func main() {
 	globalCtx, cancel = context.WithCancel(context.Background())
 
 	sc := make(chan os.Signal, 1)
-	signal.Notify(sc,
-		syscall.SIGHUP,
-		syscall.SIGINT,
-		syscall.SIGTERM,
-		syscall.SIGQUIT)
-
+	if !signal.Ignored(syscall.SIGHUP) {
+		signal.Notify(sc,
+			syscall.SIGHUP,
+			syscall.SIGINT,
+			syscall.SIGTERM,
+			syscall.SIGQUIT)
+	} else {
+		fmt.Printf("\nCatch nohup.\n")
+	}
 	closeDone := make(chan struct{}, 1)
 	go func() {
 		sig := <-sc
